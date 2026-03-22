@@ -1,14 +1,17 @@
 import os
+import threading
 from flask import Flask, render_template, request, jsonify
 import openai
 import telebot
 
+# Flask ilovasini yaratish
 app = Flask(__name__)
 
-# Kalitlar
+# Kalitlarni Render "Environment Variables"dan oladi
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
+# API mijozlarini sozlash
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
@@ -25,19 +28,22 @@ def get_ai_response(user_text):
     except Exception as e:
         return f"Xatolik yuz berdi: {str(e)}"
 
-# --- VEBSAYT QISMI ---
+# --- VEBSAYT YO'LLARI ---
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    data = request.get_json()
-    user_message = data.get("message")
-    bot_reply = get_ai_response(user_message)
-    return jsonify({"reply": bot_reply})
+    try:
+        data = request.get_json()
+        user_message = data.get("message")
+        bot_reply = get_ai_response(user_message)
+        return jsonify({"reply": bot_reply})
+    except Exception as e:
+        return jsonify({"reply": "Xatolik yuz berdi."}), 500
 
-# --- TELEGRAM QISMI ---
+# --- TELEGRAM BOT LOGIKASI ---
 @bot.message_handler(commands=['start'])
 def welcome(message):
     bot.reply_to(message, "🌐 *NetGlobal AI* botiga xush kelibsiz!\nSavolingizni yozing.", parse_mode="Markdown")
@@ -48,10 +54,16 @@ def handle_text(message):
     reply = get_ai_response(message.text)
     bot.reply_to(message, reply)
 
+# Telegram botni alohida oqimda ishga tushirish funksiyasi
+def run_bot():
+    bot.infinity_polling(non_stop=True)
+
 if __name__ == "__main__":
-    # Render porti uchun moslashuv
+    # 1. Botni alohida oqimda boshlash
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.daemon = True
+    bot_thread.start()
+    
+    # 2. Flask veb-serverni Render portida ishga tushirish
     port = int(os.environ.get("PORT", 5000))
-    # Telegram botni alohida thread'da emas, oddiyroq usulda ishga tushiramiz
-    import threading
-    threading.Thread(target=lambda: bot.infinity_polling(non_stop=True)).start()
     app.run(host='0.0.0.0', port=port)
