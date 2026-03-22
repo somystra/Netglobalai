@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Kalitlar
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-TELEGRAM_TOKEN = "8752755194:AAFPrRtrbF4-t30AZYsdaGtVb2l11lr5SWs"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
