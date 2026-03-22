@@ -3,111 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetGlobal AI | Kelajak Intellekti</title>
+    <title>NetGlobal AI</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #673ab7 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: 'Arial', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh;
         }
-        .chat-card {
-            width: 400px;
-            height: 600px;
+        .container {
+            width: 380px; height: 550px;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
-        .header {
-            padding: 20px;
-            text-align: center;
-            color: white;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .header h1 { margin: 0; font-size: 22px; letter-spacing: 1px; }
-        .header p { font-size: 12px; opacity: 0.8; margin: 5px 0 0; }
-
-        #chat-area {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px; line-height: 1.4; }
-        .user { background: #007bff; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .bot { background: rgba(255,255,255,0.2); align-self: flex-start; border-bottom-left-radius: 2px; }
-
-        .input-area {
-            padding: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        input {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
-            padding: 10px;
-            color: white;
-            outline: none;
-        }
-        button {
-            background: #673ab7;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover { background: #512da8; }
+        .header { padding: 15px; text-align: center; color: #fff; background: rgba(0,0,0,0.2); }
+        #chat { flex: 1; padding: 15px; overflow-y: auto; color: #fff; font-size: 14px; }
+        .msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; max-width: 80%; }
+        .u { background: #6a11cb; align-self: flex-end; margin-left: auto; }
+        .b { background: #2575fc; align-self: flex-start; }
+        .input-box { display: flex; padding: 15px; gap: 10px; }
+        input { flex: 1; border: none; border-radius: 5px; padding: 10px; outline: none; }
+        button { background: #6a11cb; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div class="chat-card">
+<div class="container">
     <div class="header">
-        <h1>🌐 NetGlobal AI</h1>
-        <p>By Solijon, Ulug'bek, Dilmurod</p>
+        <h3>NetGlobal AI</h3>
+        <small>Solijon, Ulug'bek, Dilmurod</small>
     </div>
-    <div id="chat-area"></div>
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Savol yozing...">
+    <div id="chat"></div>
+    <div class="input-box">
+        <input type="text" id="inp" placeholder="Savol yozing...">
         <button onclick="send()">Yuborish</button>
     </div>
 </div>
-
 <script>
     async function send() {
-        const input = document.getElementById('userInput');
-        const area = document.getElementById('chat-area');
-        if (!input.value) return;
-
-        area.innerHTML += `<div class="msg user">${input.value}</div>`;
-        const message = input.value;
-        input.value = '';
-
-        const response = await fetch('/ask', {
+        const i = document.getElementById('inp');
+        const c = document.getElementById('chat');
+        if(!i.value) return;
+        c.innerHTML += `<div class="msg u">${i.value}</div>`;
+        const res = await fetch('/ask', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({message: message})
+            body: JSON.stringify({message: i.value})
         });
-        const data = await response.json();
-        area.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-        area.scrollTop = area.scrollHeight;
+        const d = await res.json();
+        c.innerHTML += `<div class="msg b">${d.reply}</div>`;
+        i.value = '';
+        c.scrollTop = c.scrollHeight;
     }
 </script>
-
 </body>
 </html>
